@@ -1,0 +1,59 @@
+version: '3'
+
+services:
+  weston:
+    image: torizon/weston-vivante:3
+    container_name: weston
+    restart: always
+    environment:
+      - ACCEPT_FSL_EULA=1
+      - ENABLE_VNC=0
+    network_mode: host
+    cap_add:
+      - CAP_SYS_TTY_CONFIG
+    volumes:
+      - /dev:/dev
+      - /tmp:/tmp
+      - /run/udev/:/run/udev/
+    device_cgroup_rules:
+      - 'c 4:* rmw'
+      - 'c 13:* rmw'
+      - 'c 199:* rmw'
+      - 'c 226:* rmw'
+
+  selfbalancingbot:
+    image: gabs28/selfbalancingbot:latest
+    container_name: selfbalancingbot
+    privileged: true
+    restart: always
+    cap_add:
+      - CAP_SYS_TTY_CONFIG
+      - SYS_RAWIO
+    volumes:
+      - /dev:/dev
+      - /tmp:/tmp
+    devices:
+      - "/dev/mem:/dev/mem"
+    stdin_open: true
+    tty: true
+
+  face:
+    image: allanktoradex/qt-face-vivante-telemetry:latest
+    container_name: qt-face
+    restart: always
+    environment:
+      - ACCEPT_FSL_EULA=1
+    network_mode: host
+    cap_add:
+      - CAP_SYS_TTY_CONFIG
+    volumes:
+      - /dev:/dev
+      - /tmp:/tmp
+      - /run/udev/:/run/udev/
+    device_cgroup_rules:
+      - 'c 4:* rmw'
+      - 'c 13:* rmw'
+      - 'c 199:* rmw'
+      - 'c 226:* rmw'
+    depends_on:
+      - weston
